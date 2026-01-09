@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Masuk - POROS Pontianak Responsif</title>
+    
+    <link rel="icon" href="assets/logo.svg" type="image/svg+xml">
+    
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+
+    <style>
+        /* --- VARIABLE & RESET --- */
+        :root { 
+            --primary-color: #382467; 
+            --primary-light: #5a3c99;
+            --accent-orange: #f47920;
+            --text-dark: #2c3e50;
+            --text-muted: #6c757d;
+        }
+
+        body, html {
+            height: 100%;
+            margin: 0;
+            font-family: 'Poppins', sans-serif;
+            overflow: hidden; /* Mencegah scroll pada desktop */
+            background-color: #fff;
+        }
+
+        /* --- LAYOUT SPLIT --- */
+        .login-container {
+            height: 100vh; /* Tinggi pas 1 layar */
+            width: 100vw;
+        }
+
+        /* --- BAGIAN KIRI (FORM) --- */
+        .left-panel {
+            background-color: #ffffff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 40px;
+            position: relative;
+            z-index: 2;
+        }
+
+        .login-wrapper {
+            width: 100%;
+            max-width: 420px;
+        }
+
+        .brand-header {
+            margin-bottom: 40px;
+        }
+
+        .brand-logo {
+            height: 60px;
+            margin-bottom: 15px;
+        }
+
+        .brand-title {
+            font-weight: 800;
+            color: var(--primary-color);
+            letter-spacing: 1px;
+            margin-bottom: 0;
+        }
+
+        .brand-subtitle {
+            font-size: 0.8rem;
+            color: var(--accent-orange);
+            font-weight: 600;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+        }
+
+        /* Form Styling */
+        .form-floating > .form-control:focus ~ label,
+        .form-floating > .form-control:not(:placeholder-shown) ~ label {
+            color: var(--primary-color);
+            transform: scale(.85) translateY(-0.5rem) translateX(0.15rem);
+        }
+
+        .form-control:focus {
+            border-color: var(--primary-light);
+            box-shadow: 0 0 0 0.25rem rgba(56, 36, 103, 0.15);
+        }
+
+        .btn-login {
+            background: linear-gradient(45deg, var(--primary-color), var(--primary-light));
+            border: none;
+            color: white;
+            font-weight: 600;
+            padding: 12px;
+            border-radius: 50px;
+            width: 100%;
+            margin-top: 20px;
+            transition: 0.3s;
+            box-shadow: 0 5px 15px rgba(56, 36, 103, 0.3);
+        }
+
+        .btn-login:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(56, 36, 103, 0.4);
+            color: white;
+        }
+
+        .link-custom {
+            color: var(--primary-color);
+            text-decoration: none;
+            font-weight: 500;
+            transition: 0.2s;
+        }
+
+        .link-custom:hover {
+            color: var(--accent-orange);
+            text-decoration: underline;
+        }
+
+        /* --- BAGIAN KANAN (CAROUSEL) --- */
+        .right-panel {
+            position: relative;
+            padding: 0;
+            overflow: hidden;
+        }
+
+        .carousel, .carousel-inner, .carousel-item {
+            height: 100%;
+        }
+
+        .carousel-item img {
+            object-fit: cover;
+            height: 100vh;
+            width: 100%;
+            filter: brightness(0.7); /* Gelapkan gambar sedikit agar teks terbaca */
+        }
+
+        /* Overlay Gradient di atas gambar */
+        .carousel-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(180deg, rgba(56, 36, 103, 0.3) 0%, rgba(56, 36, 103, 0.8) 100%);
+            z-index: 1;
+        }
+
+        .carousel-caption {
+            z-index: 2;
+            bottom: 80px;
+            text-align: left;
+            left: 60px;
+            right: 60px;
+        }
+
+        .carousel-caption h2 {
+            font-weight: 700;
+            font-size: 2.5rem;
+            margin-bottom: 15px;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.3);
+        }
+
+        .carousel-caption p {
+            font-size: 1.1rem;
+            font-weight: 300;
+            opacity: 0.9;
+        }
+
+        /* Responsive Adjustments */
+        @media (max-width: 991px) {
+            body, html {
+                overflow-y: auto; /* Izinkan scroll di HP jika konten panjang */
+            }
+            .login-container {
+                height: auto;
+                min-height: 100vh;
+            }
+            .left-panel {
+                padding: 60px 20px;
+                min-height: 100vh;
+            }
+            /* Sembunyikan gambar di layar kecil agar fokus ke form */
+            .right-panel {
+                display: none; 
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container-fluid login-container">
+        <div class="row h-100 g-0">
+            
+            <div class="col-lg-5 left-panel">
+                <div class="login-wrapper animate-up">
+                    
+                    <div class="brand-header text-center text-lg-start">
+                        <img src="assets/logo.svg" alt="POROS Logo" class="brand-logo">
+                        <h1 class="brand-title">POROS</h1>
+                        <span class="brand-subtitle">PONTIANAK RESPONSIF</span>
+                    </div>
+
+                    <div class="mb-4">
+                        <h3 class="fw-bold text-dark">Selamat Datang Kembali!</h3>
+                        <p class="text-muted">Silakan masuk untuk mengelola laporan Anda.</p>
+                    </div>
+
+                    <form id="loginForm"> 
+                        <div class="form-floating mb-3">
+                            <input type="email" class="form-control" id="emailInput" placeholder="name@example.com" required>
+                            <label for="emailInput">Alamat Email</label>
+                        </div>
+
+                        <div class="form-floating mb-4">
+                            <input type="password" class="form-control" id="passwordInput" placeholder="Password" required>
+                            <label for="passwordInput">Kata Sandi</label>
+                        </div>
+
+                        <div class="d-flex justify-content-between align-items-center mb-4">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" value="" id="rememberCheck">
+                                <label class="form-check-label text-muted small" for="rememberCheck">
+                                    Ingat Saya
+                                </label>
+                            </div>
+                            <a href="#" class="link-custom small">Lupa Kata Sandi?</a>
+                        </div>
+
+                        <button type="submit" class="btn btn-login btn-lg">
+                            Masuk Sekarang <i class="bi bi-arrow-right ms-2"></i>
+                        </button>
+
+                        <div class="text-center mt-4">
+                            <span class="text-muted small">Belum punya akun?</span>
+                            <a href="register.html" class="link-custom small fw-bold ms-1">Daftar Akun Baru</a>
+                        </div>
+
+                        <div class="text-center mt-5">
+                            <a href="index.html" class="text-muted text-decoration-none small">
+                                <i class="bi bi-arrow-left me-1"></i> Kembali ke Beranda
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <div class="col-lg-7 right-panel d-none d-lg-block">
+                <div id="loginCarousel" class="carousel slide carousel-fade" data-bs-ride="carousel" data-bs-interval="4000">
+                    
+                    <div class="carousel-indicators">
+                        <button type="button" data-bs-target="#loginCarousel" data-bs-slide-to="0" class="active" aria-current="true"></button>
+                        <button type="button" data-bs-target="#loginCarousel" data-bs-slide-to="1"></button>
+                        <button type="button" data-bs-target="#loginCarousel" data-bs-slide-to="2"></button>
+                    </div>
+
+                    <div class="carousel-inner">
+                        <div class="carousel-item active">
+                            <div class="carousel-overlay"></div>
+                            <img src="assets/login 1.svg" class="d-block w-100" alt="Smart City">
+                            <div class="carousel-caption">
+                                <h2 data-aos="fade-up">Pantau Kota Secara Real-Time</h2>
+                                <p data-aos="fade-up" data-aos-delay="100">Teknologi Smart City untuk memantau perkembangan infrastruktur dan pelayanan publik secara transparan.</p>
+                            </div>
+                        </div>
+
+                        <div class="carousel-item">
+                            <div class="carousel-overlay"></div>
+                            <img src="assets/login 2.svg" class="d-block w-100" alt="Collaboration">
+                            <div class="carousel-caption">
+                                <h2>Sinergi Pemerintah & Masyarakat</h2>
+                                <p>Kolaborasi aktif antara warga dan perangkat daerah untuk menciptakan lingkungan yang nyaman dan aman.</p>
+                            </div>
+                        </div>
+
+                        <div class="carousel-item">
+                            <div class="carousel-overlay"></div>
+                            <img src="assets/login 3.svg" class="d-block w-100" alt="Building">
+                            <div class="carousel-caption">
+                                <h2>Layanan Publik Digital</h2>
+                                <p>Kemudahan akses administrasi dan pelaporan hanya dalam satu genggaman tangan melalui POROS.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        document.getElementById('loginForm').addEventListener('submit', function(event) {
+            event.preventDefault(); // Mencegah form reload halaman
+
+            // Ambil value dari input
+            const email = document.getElementById('emailInput').value;
+            const password = document.getElementById('passwordInput').value;
+
+            // Logika Validasi Sesuai Permintaan
+            if (email === 'poros@pontianak.go.id' && password === 'porospontianak') {
+                // Login Admin
+                window.location.href = 'admin/index.html'; 
+            } else if (email === 'masyarakat@pontianak.go.id' && password === 'masyarakat') {
+                // Login Masyarakat
+                window.location.href = 'masyarakat/index.html';
+            } else {
+                // Jika Salah
+                alert('Login Gagal! Email atau Kata Sandi salah.');
+            }
+        });
+    </script>
+
+</body>
+</html>

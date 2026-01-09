@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - POROS Pontianak</title>
+    
+    <link rel="icon" href="../assets/logo.svg" type="image/svg+xml">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+    
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+
+    <style>
+        :root {
+            --primary-color: #382467; 
+            --primary-light: #5a3c99;
+            --accent-orange: #f47920;
+            --bg-body: #f3f4f6; 
+            --text-dark: #1f2937; 
+            --text-muted: #6b7280; 
+            --sidebar-width: 260px;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--bg-body);
+            color: var(--text-dark);
+            overflow-x: hidden;
+        }
+
+        /* --- SPA ANIMATION --- */
+        .spa-view { display: none; animation: fadeIn 0.3s ease-in-out; }
+        .spa-view.active { display: block; }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* --- SIDEBAR --- */
+        .sidebar {
+            width: var(--sidebar-width); height: 100vh;
+            position: fixed; top: 0; left: 0;
+            background-color: white; border-right: 1px solid #e5e7eb;
+            z-index: 1000; display: flex; flex-direction: column;
+        }
+
+        .sidebar-header {
+            height: 70px; display: flex; align-items: center;
+            padding: 0 24px; border-bottom: 1px solid #e5e7eb;
+        }
+
+        .nav-link {
+            display: flex; align-items: center; padding: 12px 24px;
+            color: var(--text-muted); font-weight: 500; font-size: 0.95rem;
+            transition: all 0.2s; border-left: 4px solid transparent;
+            text-decoration: none; cursor: pointer;
+        }
+
+        .nav-link:hover { background-color: #f9fafb; color: var(--primary-color); }
+        .nav-link.active {
+            background-color: #f3f0fa; color: var(--primary-color);
+            border-left-color: var(--primary-color); font-weight: 600;
+        }
+        .nav-link i { margin-right: 12px; font-size: 1.2rem; }
+
+        /* --- CONTENT --- */
+        .main-content { margin-left: var(--sidebar-width); min-height: 100vh; display: flex; flex-direction: column; }
+        .topbar {
+            height: 70px; background: white; border-bottom: 1px solid #e5e7eb;
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 0 30px; position: sticky; top: 0; z-index: 900;
+        }
+
+        /* --- COMPONENTS --- */
+        .card-custom {
+            background: white; border-radius: 0.75rem;
+            border: 1px solid #e5e7eb; box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            padding: 1.5rem; transition: 0.3s;
+        }
+        .card-custom:hover { box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+
+        .badge-status { padding: 6px 12px; border-radius: 9999px; font-size: 0.75rem; font-weight: 600; }
+        .badge-pending { background-color: #fef3c7; color: #d97706; }
+        .badge-process { background-color: #dbeafe; color: #2563eb; }
+        .badge-done { background-color: #d1fae5; color: #059669; }
+
+        .table-custom th {
+            font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em;
+            color: var(--text-muted); font-weight: 600; background-color: #f9fafb;
+            border-bottom: 1px solid #e5e7eb; padding: 12px 16px;
+        }
+        .table-custom td { padding: 16px; vertical-align: middle; border-bottom: 1px solid #f3f4f6; font-size: 0.9rem; }
+        
+        .avatar {
+            width: 32px; height: 32px; border-radius: 50%;
+            background: var(--primary-color); color: white;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 0.8rem; font-weight: bold;
+        }
+
+        /* Map Container Height */
+        #map { height: 600px; width: 100%; z-index: 1; border-radius: 0 0 0.75rem 0.75rem; }
+    </style>
+</head>
+
+<body>
+
+    <nav class="sidebar">
+        <div class="sidebar-header">
+            <img src="../assets/logo.svg" alt="Logo" style="height: 35px; width: auto; margin-right: 10px;">
+            <div class="d-flex flex-column justify-content-center">
+                <h5 class="fw-bold m-0" style="color: var(--primary-color); line-height: 1;">POROS</h5>
+                <small class="fw-bold text-orange" style="font-size: 0.6rem; letter-spacing: 1px;">PONTIANAK RESPONSIF</small>
+            </div>
+        </div>
+
+        <div class="py-4">
+            <small class="px-4 text-uppercase text-muted fw-bold mb-2 d-block" style="font-size: 0.7rem;">Menu Utama</small>
+            <a onclick="switchView('dashboard')" class="nav-link active" id="nav-dashboard">
+                <i class="bi bi-grid-1x2-fill"></i> Dashboard
+            </a>
+            <a onclick="switchView('inbox')" class="nav-link" id="nav-inbox">
+                <i class="bi bi-inbox-fill"></i> Laporan Masuk
+                <span class="badge bg-danger rounded-pill ms-auto" id="sidebar-badge">2</span>
+            </a>
+            <a onclick="switchView('tracking')" class="nav-link" id="nav-tracking">
+                <i class="bi bi-list-check"></i> Tracking Progress
+            </a>
+            <a onclick="switchView('map')" class="nav-link" id="nav-map">
+                <i class="bi bi-map-fill"></i> Peta Sebaran (GIS)
+            </a>
+        </div>
+
+        <div class="mt-auto py-4 border-top">
+            <small class="px-4 text-uppercase text-muted fw-bold mb-2 d-block" style="font-size: 0.7rem;">Pengaturan</small>
+            <a onclick="switchView('users')" class="nav-link" id="nav-users">
+                <i class="bi bi-people-fill"></i> Data Pengguna
+            </a>
+            <a onclick="logout()" class="nav-link text-danger">
+                <i class="bi bi-box-arrow-left"></i> Keluar
+            </a>
+        </div>
+    </nav>
+
+    <main class="main-content">
+        
+        <header class="topbar">
+            <h5 class="fw-bold m-0 text-dark" id="page-title">Dashboard Overview</h5>
+            <div class="d-flex align-items-center gap-4">
+                <div class="input-group d-none d-md-flex" style="width: 250px;">
+                    <span class="input-group-text bg-light border-end-0 rounded-start-pill"><i class="bi bi-search text-muted"></i></span>
+                    <input type="text" class="form-control bg-light border-start-0 rounded-end-pill" placeholder="Cari tiket...">
+                </div>
+                <div class="position-relative cursor-pointer" onclick="alert('Tidak ada notifikasi baru')">
+                    <i class="bi bi-bell fs-5 text-muted"></i>
+                    <span class="position-absolute top-0 start-100 translate-middle p-1 bg-danger border border-light rounded-circle"></span>
+                </div>
+                <div class="d-flex align-items-center gap-3 border-start ps-4">
+                    <div class="text-end d-none d-sm-block">
+                        <h6 class="m-0 fw-bold" style="font-size: 0.9rem;">Admin Pusat</h6>
+                        <small class="text-muted" style="font-size: 0.75rem;">Command Center</small>
+                    </div>
+                    <img src="https://ui-avatars.com/api/?name=Admin+Pusat&background=382467&color=fff" class="rounded-circle" width="40" height="40">
+                </div>
+            </div>
+        </header>
+
+        <div class="p-4 p-md-5">
+            
+            <div id="view-dashboard" class="spa-view active">
+                <div class="row g-4 mb-5">
+                    <div class="col-xl-3 col-md-6">
+                        <div class="card-custom d-flex flex-column align-items-start justify-content-between h-100" onclick="switchView('inbox')" style="cursor: pointer; min-height: 160px;">
+                            <div class="w-100">
+                                <p class="text-muted fw-bold small mb-1">TOTAL LAPORAN</p>
+                                <h2 class="fw-bold m-0 text-dark">1,240</h2>
+                                <small class="text-success fw-bold">+12%</small> <small class="text-muted">bulan ini</small>
+                            </div>
+                            <div class="p-3 bg-primary bg-opacity-10 text-primary rounded-circle align-self-end"><i class="bi bi-file-earmark-text fs-3"></i></div>
+                        </div>
+                    </div>
+                    <div class="col-xl-3 col-md-6">
+                        <div class="card-custom d-flex flex-column align-items-start justify-content-between h-100" onclick="switchView('inbox')" style="cursor: pointer; min-height: 160px;">
+                            <div class="w-100">
+                                <p class="text-muted fw-bold small mb-1">PERLU VERIFIKASI</p>
+                                <h2 class="fw-bold m-0 text-warning" id="count-pending">2</h2>
+                                <small class="text-danger fw-bold">Urgent</small>
+                            </div>
+                            <div class="p-3 bg-warning bg-opacity-10 text-warning rounded-circle align-self-end"><i class="bi bi-hourglass-split fs-3"></i></div>
+                        </div>
+                    </div>
+                    <div class="col-xl-3 col-md-6">
+                        <div class="card-custom d-flex flex-column align-items-start justify-content-between h-100" onclick="switchView('tracking')" style="cursor: pointer; min-height: 160px;">
+                            <div class="w-100">
+                                <p class="text-muted fw-bold small mb-1">DIKERJAKAN</p>
+                                <h2 class="fw-bold m-0 text-primary">48</h2>
+                                <small class="text-muted">oleh Dinas</small>
+                            </div>
+                            <div class="p-3 bg-info bg-opacity-10 text-info rounded-circle align-self-end"><i class="bi bi-gear-wide-connected fs-3"></i></div>
+                        </div>
+                    </div>
+                    <div class="col-xl-3 col-md-6">
+                        <div class="card-custom d-flex flex-column align-items-start justify-content-between h-100" style="cursor: pointer; min-height: 160px;">
+                            <div class="w-100">
+                                <p class="text-muted fw-bold small mb-1">SELESAI</p>
+                                <h2 class="fw-bold m-0 text-success">850</h2>
+                                <small class="text-success fw-bold">98%</small>
+                            </div>
+                            <div class="p-3 bg-success bg-opacity-10 text-success rounded-circle align-self-end"><i class="bi bi-check-circle fs-3"></i></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row g-4">
+                    <div class="col-lg-8">
+                        <div class="card-custom h-100">
+                            <h6 class="fw-bold mb-4">Tren Laporan Minggu Ini</h6>
+                            <div style="height: 300px;"><canvas id="reportChart"></canvas></div>
+                        </div>
+                    </div>
+                    <div class="col-lg-4">
+                        <div class="card-custom h-100">
+                            <h6 class="fw-bold mb-4">Top Kategori</h6>
+                            <div class="mb-3">
+                                <div class="d-flex justify-content-between mb-1"><span class="small fw-bold">Jalan Rusak</span><span class="small fw-bold">45%</span></div>
+                                <div class="progress" style="height: 8px;"><div class="progress-bar bg-danger" style="width: 45%"></div></div>
+                            </div>
+                            <div class="mb-3">
+                                <div class="d-flex justify-content-between mb-1"><span class="small fw-bold">Banjir</span><span class="small fw-bold">30%</span></div>
+                                <div class="progress" style="height: 8px;"><div class="progress-bar bg-info" style="width: 30%"></div></div>
+                            </div>
+                            <div class="mb-3">
+                                <div class="d-flex justify-content-between mb-1"><span class="small fw-bold">Sampah</span><span class="small fw-bold">15%</span></div>
+                                <div class="progress" style="height: 8px;"><div class="progress-bar bg-warning" style="width: 15%"></div></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="view-inbox" class="spa-view">
+                <div class="card-custom">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h6 class="fw-bold m-0">Laporan Menunggu Verifikasi</h6>
+                        <button class="btn btn-sm btn-outline-secondary rounded-pill" onclick="alert('Refresh data...')"><i class="bi bi-arrow-clockwise"></i> Refresh</button>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table table-custom table-hover w-100 mb-0">
+                            <thead>
+                                <tr>
+                                    <th>ID Tiket</th>
+                                    <th>Pelapor</th>
+                                    <th>Kategori & Lokasi</th>
+                                    <th>Bukti</th>
+                                    <th>Status</th>
+                                    <th>Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody id="inbox-table-body">
+                                <tr id="row-005">
+                                    <td><span class="fw-bold text-primary">#REQ-005</span></td>
+                                    <td><div class="d-flex align-items-center"><div class="avatar me-2">AD</div><span>Andi D.</span></div></td>
+                                    <td><div class="fw-bold small">Jalan Rusak</div><div class="text-muted small">Jl. Gajah Mada No. 12</div></td>
+                                    <td><button class="btn btn-sm btn-light border" onclick="showImageModal('../assets/login 1.svg')"><i class="bi bi-image"></i> Lihat</button></td>
+                                    <td><span class="badge-status badge-pending">Menunggu</span></td>
+                                    <td>
+                                        <button class="btn btn-sm btn-primary rounded-pill px-3 me-1" onclick="approveReport('row-005')">Verifikasi</button>
+                                        <button class="btn btn-sm btn-outline-danger rounded-pill px-3" onclick="rejectReport('row-005')">Tolak</button>
+                                    </td>
+                                </tr>
+                                <tr id="row-004">
+                                    <td><span class="fw-bold text-primary">#REQ-004</span></td>
+                                    <td><div class="d-flex align-items-center"><div class="avatar me-2 bg-warning">BS</div><span>Budi S.</span></div></td>
+                                    <td><div class="fw-bold small">Drainase Mampet</div><div class="text-muted small">Gg. Kamboja</div></td>
+                                    <td><button class="btn btn-sm btn-light border" onclick="showImageModal('../assets/login 2.svg')"><i class="bi bi-image"></i> Lihat</button></td>
+                                    <td><span class="badge-status badge-pending">Menunggu</span></td>
+                                    <td>
+                                        <button class="btn btn-sm btn-primary rounded-pill px-3 me-1" onclick="approveReport('row-004')">Verifikasi</button>
+                                        <button class="btn btn-sm btn-outline-danger rounded-pill px-3" onclick="rejectReport('row-004')">Tolak</button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <div id="empty-inbox-msg" class="text-center py-5 text-muted" style="display: none;">
+                            <i class="bi bi-inbox fs-1 d-block mb-2"></i>Tidak ada laporan baru.
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="view-tracking" class="spa-view">
+                <div class="card-custom">
+                    <h6 class="fw-bold mb-4">Laporan Sedang Dikerjakan Dinas</h6>
+                    <div class="table-responsive">
+                        <table class="table table-custom table-hover w-100">
+                            <thead>
+                                <tr>
+                                    <th>ID Tiket</th>
+                                    <th>Dinas Terkait</th>
+                                    <th>Masalah</th>
+                                    <th>Progress</th>
+                                    <th>Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>#REQ-003</td>
+                                    <td><span class="badge bg-primary">Dinas PUPR</span></td>
+                                    <td>Jalan Berlubang - Jl. Ahmad Yani</td>
+                                    <td><div class="d-flex align-items-center"><div class="progress flex-grow-1 me-2" style="height: 6px;"><div class="progress-bar" style="width: 75%"></div></div><span class="small fw-bold">75%</span></div></td>
+                                    <td><button class="btn btn-sm btn-success rounded-pill" onclick="alert('Laporan selesai!')"><i class="bi bi-check-lg"></i> Selesai</button></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div id="view-map" class="spa-view">
+                <div class="card-custom h-100 p-0 overflow-hidden position-relative border-0 shadow-sm">
+                    <div class="p-3 border-bottom bg-white d-flex justify-content-between align-items-center">
+                        <h6 class="fw-bold m-0">Peta Sebaran Laporan</h6>
+                        <div>
+                            <span class="badge bg-danger me-1">Menunggu</span>
+                            <span class="badge bg-warning text-dark me-1">Proses</span>
+                            <span class="badge bg-success">Selesai</span>
+                        </div>
+                    </div>
+                    <div id="map"></div>
+                </div>
+            </div>
+
+            <div id="view-users" class="spa-view">
+                <div class="card-custom">
+                    <h6 class="fw-bold mb-4">Data Pengguna</h6>
+                    <table class="table table-custom">
+                        <thead><tr><th>Nama</th><th>NIK</th><th>Status</th><th>Aksi</th></tr></thead>
+                        <tbody>
+                            <tr><td>Budi Santoso</td><td>61710123****</td><td><span class="badge bg-success">Valid</span></td><td><button class="btn btn-sm btn-outline-secondary" onclick="alert('Edit Budi')">Edit</button></td></tr>
+                            <tr><td>Siti Rahayu</td><td>61710567****</td><td><span class="badge bg-success">Valid</span></td><td><button class="btn btn-sm btn-outline-secondary" onclick="alert('Edit Siti')">Edit</button></td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <script>
+        // --- 1. CONFIG MAP (Leaflet) ---
+        let map;
+        let mapInitialized = false;
+
+        // Dummy Data Points (Pontianak Area)
+        const reportPoints = [
+            { lat: -0.02269, lng: 109.33041, title: "Jalan Rusak Gajah Mada", status: "pending", desc: "Lubang besar di tengah jalan." },
+            { lat: -0.03550, lng: 109.34500, title: "Drainase Mampet", status: "process", desc: "Air meluap saat hujan." },
+            { lat: -0.01800, lng: 109.32000, title: "Sampah Liar", status: "done", desc: "Tumpukan sampah sudah diangkut." },
+            { lat: -0.04000, lng: 109.35000, title: "PJU Mati", status: "pending", desc: "Gelap gulita di malam hari." },
+            { lat: -0.02800, lng: 109.33500, title: "Pohon Tumbang", status: "process", desc: "Menghalangi jalan." }
+        ];
+
+        function initMap() {
+            if (mapInitialized) return; // Prevent re-initialization
+
+            // Koordinat Pusat Pontianak
+            map = L.map('map').setView([-0.025, 109.333], 13);
+
+            // Add OSM Tile Layer
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '&copy; OpenStreetMap contributors'
+            }).addTo(map);
+
+            // Define Custom Icons (Colors)
+            const getIcon = (color) => {
+                return new L.Icon({
+                    iconUrl: `https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-${color}.png`,
+                    shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
+                    iconSize: [25, 41],
+                    iconAnchor: [12, 41],
+                    popupAnchor: [1, -34],
+                    shadowSize: [41, 41]
+                });
+            };
+
+            const icons = {
+                pending: getIcon('red'),
+                process: getIcon('gold'), // Yellow/Orange equivalent
+                done: getIcon('green')
+            };
+
+            // Add Markers
+            reportPoints.forEach(pt => {
+                const marker = L.marker([pt.lat, pt.lng], { icon: icons[pt.status] }).addTo(map);
+                
+                // Format Status Text
+                let statusBadge = '';
+                if(pt.status === 'pending') statusBadge = '<span class="badge bg-danger">Menunggu</span>';
+                else if(pt.status === 'process') statusBadge = '<span class="badge bg-warning text-dark">Proses</span>';
+                else statusBadge = '<span class="badge bg-success">Selesai</span>';
+
+                marker.bindPopup(`
+                    <div style="font-family: Poppins, sans-serif;">
+                        <h6 style="font-weight:700; margin-bottom:5px;">${pt.title}</h6>
+                        <p style="margin-bottom:8px; font-size:0.85rem;">${pt.desc}</p>
+                        ${statusBadge}
+                    </div>
+                `);
+            });
+
+            mapInitialized = true;
+        }
+
+
+        // --- 2. SPA ROUTER ---
+        function switchView(viewName) {
+            // Hide all views
+            document.querySelectorAll('.spa-view').forEach(el => el.classList.remove('active'));
+            // Show target view
+            document.getElementById('view-' + viewName).classList.add('active');
+            
+            // Update Active Sidebar
+            document.querySelectorAll('.nav-link').forEach(el => el.classList.remove('active'));
+            document.getElementById('nav-' + viewName).classList.add('active');
+
+            // Set Title
+            const titles = {
+                'dashboard': 'Dashboard Overview',
+                'inbox': 'Laporan Masuk',
+                'tracking': 'Tracking Progress',
+                'map': 'Geographic Information System',
+                'users': 'Manajemen Pengguna'
+            };
+            document.getElementById('page-title').innerText = titles[viewName];
+
+            // Trigger Map Init & Resize when Map View is opened
+            if (viewName === 'map') {
+                setTimeout(() => {
+                    initMap();
+                    map.invalidateSize(); // Fix grey area issue
+                }, 100);
+            }
+        }
+
+
+        // --- 3. CHART JS ---
+        const ctx = document.getElementById('reportChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: ['Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab', 'Min'],
+                datasets: [{
+                    label: 'Masuk',
+                    data: [12, 19, 15, 25, 22, 30, 18],
+                    borderColor: '#382467', backgroundColor: 'rgba(56, 36, 103, 0.1)',
+                    tension: 0.4, fill: true
+                }]
+            },
+            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: {display:false} } }
+        });
+
+        // --- 4. ACTIONS ---
+        function approveReport(rowId) {
+            if(confirm('Verifikasi laporan ini?')) {
+                const row = document.getElementById(rowId);
+                row.remove();
+                updateBadge();
+            }
+        }
+        function rejectReport(rowId) {
+            if(prompt("Alasan penolakan:")) {
+                const row = document.getElementById(rowId);
+                row.remove();
+                updateBadge();
+            }
+        }
+        function updateBadge() {
+            const count = document.getElementById('inbox-table-body').children.length;
+            document.getElementById('sidebar-badge').innerText = count;
+            document.getElementById('count-pending').innerText = count;
+            if(count === 0) {
+                document.getElementById('empty-inbox-msg').style.display = 'block';
+                document.getElementById('sidebar-badge').style.display = 'none';
+            }
+        }
+        function showImageModal(src) {
+            const w = window.open("", "_blank", "width=600,height=400");
+            w.document.write(`<img src="${src}" style="width:100%">`);
+        }
+        function logout() {
+            if(confirm('Akhiri sesi Admin?')) window.location.href = '../index.html';
+        }
+    </script>
+</body>
+</html>

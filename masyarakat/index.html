@@ -1,0 +1,619 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Warga - POROS Pontianak</title>
+    
+    <link rel="icon" href="../assets/logo.svg" type="image/svg+xml">
+    
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+
+    <style>
+        :root {
+            --primary-color: #382467; 
+            --primary-light: #5a3c99;
+            --accent-orange: #f47920;
+            --bg-light: #f8f9fa;
+            --text-dark: #2c3e50;
+            --nav-height: 70px;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--bg-light);
+            color: var(--text-dark);
+            padding-bottom: 90px; /* Ruang untuk navigasi bawah */
+            overflow-x: hidden;
+        }
+
+        /* --- SPA SECTIONS (Transisi Halus) --- */
+        .spa-view {
+            display: none; 
+            animation: fadeIn 0.3s ease-in-out;
+            padding-bottom: 20px;
+        }
+        
+        .spa-view.active {
+            display: block; 
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* --- HEADER & BRANDING --- */
+        .app-header {
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-light));
+            color: white;
+            padding: 20px 20px 70px 20px; /* Padding bawah besar untuk tempat kartu stats */
+            border-bottom-left-radius: 30px;
+            border-bottom-right-radius: 30px;
+            position: relative;
+            margin-bottom: 60px;
+            box-shadow: 0 4px 15px rgba(56, 36, 103, 0.2);
+        }
+
+        .brand-bar {
+            display: flex;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+
+        .brand-logo {
+            height: 35px;
+            width: auto;
+            margin-right: 10px;
+            filter: brightness(0) invert(1); /* Logo jadi putih */
+        }
+
+        .brand-text h5 {
+            font-weight: 800;
+            margin: 0;
+            line-height: 1;
+            font-size: 1.2rem;
+            letter-spacing: 1px;
+        }
+
+        .brand-text span {
+            font-size: 0.55rem;
+            font-weight: 600;
+            color: var(--accent-orange);
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            display: block;
+        }
+
+        .user-greeting h3 { font-weight: 600; margin-bottom: 5px; }
+        .user-greeting p { opacity: 0.9; font-size: 0.9rem; }
+
+        /* --- STATS CARD (PERBAIKAN WARNA) --- */
+        .stats-container {
+            position: absolute;
+            bottom: -40px; left: 20px; right: 20px;
+            background: white;
+            border-radius: 20px;
+            padding: 20px 10px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+            display: flex;
+            justify-content: space-around;
+            text-align: center;
+            z-index: 10;
+        }
+
+        .stat-item h2 { 
+            font-weight: 800; 
+            color: var(--primary-color); /* Warna Ungu Gelap (Bukan Putih) */
+            margin: 0; 
+            font-size: 1.8rem;
+            line-height: 1;
+        }
+        
+        .stat-item span { 
+            font-size: 0.75rem; 
+            color: #555; /* Abu-abu gelap agar terbaca jelas */
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-top: 5px;
+            display: block;
+        }
+
+        /* --- MENU & CARDS --- */
+        .section-title { font-weight: 700; font-size: 1.1rem; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; }
+        
+        .action-card {
+            background: white; border-radius: 15px;
+            padding: 20px; margin-bottom: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.03);
+            display: flex; align-items: center;
+            text-decoration: none; color: inherit;
+            transition: 0.2s; border: 1px solid transparent;
+        }
+        
+        .action-card:active { transform: scale(0.98); background-color: #f8f9fa; }
+        .action-icon {
+            width: 50px; height: 50px;
+            border-radius: 12px;
+            background: var(--primary-bg-light);
+            color: var(--primary-color);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.5rem; margin-right: 15px;
+        }
+
+        /* --- NOTIFICATION LIST --- */
+        .notif-item {
+            background: white;
+            border-radius: 15px;
+            padding: 15px;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: start;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.02);
+            border-left: 5px solid transparent;
+            transition: 0.2s;
+        }
+
+        .notif-item.unread { border-left-color: var(--accent-orange); background: #fffbf7; }
+        .notif-icon {
+            min-width: 40px; height: 40px;
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            margin-right: 15px; font-size: 1.2rem;
+        }
+
+        /* --- FORM LAPOR --- */
+        .camera-upload-box {
+            border: 2px dashed #ccc;
+            border-radius: 15px;
+            height: 200px;
+            display: flex; flex-direction: column;
+            align-items: center; justify-content: center;
+            color: #aaa; margin-bottom: 20px;
+            background: white;
+            position: relative;
+            overflow: hidden;
+        }
+        .camera-preview { width: 100%; height: 100%; object-fit: cover; position: absolute; top: 0; left: 0; display: none; }
+
+        /* --- BOTTOM NAVIGATION --- */
+        .bottom-nav {
+            position: fixed; bottom: 0; left: 0; width: 100%;
+            background: white;
+            height: var(--nav-height);
+            display: flex; justify-content: space-around; align-items: center;
+            box-shadow: 0 -5px 20px rgba(0,0,0,0.05);
+            z-index: 1000;
+            padding-bottom: 5px;
+        }
+
+        .nav-item {
+            display: flex; flex-direction: column;
+            align-items: center; justify-content: center;
+            color: #ccc;
+            text-decoration: none;
+            font-size: 0.75rem;
+            width: 60px;
+        }
+
+        .nav-item i { font-size: 1.4rem; margin-bottom: 2px; transition: 0.2s; }
+        .nav-item.active { color: var(--primary-color); font-weight: 600; }
+        .nav-item.active i { transform: translateY(-3px); }
+
+        .fab-lapor {
+            width: 65px; height: 65px;
+            background: var(--accent-orange);
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            color: white; font-size: 1.8rem;
+            box-shadow: 0 10px 20px rgba(244, 121, 32, 0.4);
+            margin-top: -35px;
+            border: 5px solid var(--bg-light);
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="app-header">
+        <div class="brand-bar">
+            <img src="../assets/logo.svg" alt="Logo" class="brand-logo">
+            <div class="brand-text">
+                <h5>POROS</h5>
+                <span>PONTIANAK RESPONSIF</span>
+            </div>
+            <div class="ms-auto bg-white text-primary fw-bold rounded-circle d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+                BS
+            </div>
+        </div>
+
+        <div class="user-greeting">
+            <p class="mb-0 text-white-50">Selamat Datang,</p>
+            <h3>Budi Santoso</h3>
+            <span class="badge bg-white rounded-pill px-3 py-1 mt-1" style="color: #000;">
+                <i class="bi bi-star-fill me-1" style="color: var(--accent-orange);"></i> Warga Peduli (Lvl 3)
+            </span>
+        </div>
+
+        <div class="stats-container">
+            <div class="stat-item" onclick="switchView('history')">
+            <h2>12</h2>
+            <span>Dilapor</span>
+            </div>
+            <div class="stat-item" onclick="switchView('history')">
+            <h2>2</h2>
+            <span>Proses</span>
+            </div>
+            <div class="stat-item" onclick="switchView('history')">
+            <h2>10</h2>
+            <span>Selesai</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="container mt-5 pt-4">
+        
+        <div id="view-home" class="spa-view active">
+            
+            <div class="alert alert-primary border-0 shadow-sm d-flex align-items-center mb-4" role="alert" style="border-radius: 15px;">
+                <i class="bi bi-megaphone-fill fs-4 me-3"></i>
+                <div style="line-height: 1.3;">
+                    <small class="fw-bold d-block">Info Pemkot</small>
+                    <span style="font-size: 0.85rem;">Pemeliharaan server tanggal 20 Jan pukul 23:00 WIB.</span>
+                </div>
+            </div>
+
+            <div class="section-title">
+                <span>Laporan Terakhir</span>
+                <a href="#" onclick="switchView('history'); return false;" class="text-decoration-none small text-orange fw-bold">Lihat Semua</a>
+            </div>
+
+            <div class="card border-0 shadow-sm mb-4" style="border-radius: 15px; overflow: hidden;">
+                <div class="card-header bg-white border-0 pt-3 px-3 d-flex justify-content-between align-items-center">
+                    <span class="badge bg-primary bg-opacity-10 text-primary px-3 py-2 rounded-pill">Sedang Diproses</span>
+                    <small class="text-muted">2 Jam lalu</small>
+                </div>
+                <div class="card-body d-flex">
+                    <img src="https://images.unsplash.com/photo-1515162816999-a0c47dc192f7?q=80&w=200&auto=format&fit=crop" style="width: 80px; height: 80px; border-radius: 10px; object-fit: cover;" class="me-3">
+                    <div>
+                        <h6 class="fw-bold mb-1">Jalan Berlubang</h6>
+                        <p class="text-muted small mb-1 line-clamp-2">Lubang di Jl. Ahmad Yani depan Mega Mall membahayakan.</p>
+                        <small class="text-secondary"><i class="bi bi-geo-alt-fill text-danger"></i> Pontianak Selatan</small>
+                    </div>
+                </div>
+                <div class="card-footer bg-white border-top border-light p-2 text-center">
+                    <a href="#" onclick="alert('Membuka detail tiket...')" class="text-decoration-none small fw-bold text-primary">Lihat Detail Tiket</a>
+                </div>
+            </div>
+
+            <div class="section-title mt-4">
+                <span>Lapor Cepat</span>
+            </div>
+            <div class="row g-3">
+                <div class="col-6">
+                    <a href="#" onclick="switchView('lapor'); return false;" class="action-card mb-0">
+                        <div class="action-icon" style="background: #ffe0e0; color: #d63384;"><i class="bi bi-cone-striped"></i></div>
+                        <div>
+                            <span class="d-block fw-bold small">Jalan</span>
+                            <span style="font-size: 0.65rem; color: #888;">Rusak/Lubang</span>
+                        </div>
+                    </a>
+                </div>
+                <div class="col-6">
+                    <a href="#" onclick="switchView('lapor'); return false;" class="action-card mb-0">
+                        <div class="action-icon" style="background: #e0f7fa; color: #00bcd4;"><i class="bi bi-water"></i></div>
+                        <div>
+                            <span class="d-block fw-bold small">Banjir</span>
+                            <span style="font-size: 0.65rem; color: #888;">Drainase Mampet</span>
+                        </div>
+                    </a>
+                </div>
+                <div class="col-6">
+                    <a href="#" onclick="switchView('lapor'); return false;" class="action-card mb-0">
+                        <div class="action-icon" style="background: #e8f5e9; color: #2e7d32;"><i class="bi bi-trash"></i></div>
+                        <div>
+                            <span class="d-block fw-bold small">Sampah</span>
+                            <span style="font-size: 0.65rem; color: #888;">Tumpukan Liar</span>
+                        </div>
+                    </a>
+                </div>
+                <div class="col-6">
+                    <a href="#" onclick="switchView('lapor'); return false;" class="action-card mb-0">
+                        <div class="action-icon" style="background: #fff3e0; color: #ef6c00;"><i class="bi bi-lightbulb-off"></i></div>
+                        <div>
+                            <span class="d-block fw-bold small">PJU</span>
+                            <span style="font-size: 0.65rem; color: #888;">Lampu Mati</span>
+                        </div>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div id="view-lapor" class="spa-view">
+            <h5 class="fw-bold mb-3">Buat Laporan Baru</h5>
+            <p class="text-muted small mb-4">Pastikan Anda berada di lokasi kejadian.</p>
+
+            <form>
+                <div class="mb-3">
+                    <label class="form-label fw-bold small">Bukti Foto (Wajib)</label>
+                    <div class="camera-upload-box" onclick="document.getElementById('cameraInput').click()">
+                        <img id="previewImg" class="camera-preview">
+                        <div id="cameraPlaceholder" class="text-center">
+                            <i class="bi bi-camera-fill fs-1 mb-2 d-block"></i>
+                            <span class="small">Ketuk untuk ambil foto</span>
+                        </div>
+                        <input type="file" id="cameraInput" accept="image/*" capture="environment" hidden onchange="previewFile()">
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label fw-bold small">Lokasi Kejadian</label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-white border-end-0"><i class="bi bi-geo-alt text-danger"></i></span>
+                        <input type="text" class="form-control border-start-0 ps-0" value="Mencari titik koordinat..." id="locationInput" readonly>
+                    </div>
+                    <div class="form-text text-success" id="gpsStatus"><div class="spinner-border spinner-border-sm me-1"></div> Mengaktifkan GPS...</div>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label fw-bold small">Kategori</label>
+                    <select class="form-select">
+                        <option>Jalan Rusak</option>
+                        <option>Drainase / Banjir</option>
+                        <option>Sampah Liar</option>
+                        <option>Fasilitas Umum</option>
+                    </select>
+                </div>
+
+                <div class="mb-4">
+                    <label class="form-label fw-bold small">Keterangan</label>
+                    <textarea class="form-control" rows="3" placeholder="Jelaskan detail masalah..."></textarea>
+                </div>
+
+                <button type="button" class="btn btn-primary w-100 rounded-pill py-3 fw-bold shadow" onclick="submitLaporan()">
+                    Kirim Laporan <i class="bi bi-send-fill ms-2"></i>
+                </button>
+            </form>
+        </div>
+
+        <div id="view-history" class="spa-view">
+            <h5 class="fw-bold mb-4">Riwayat Laporan</h5>
+
+            <ul class="nav nav-pills mb-4 nav-justified bg-white p-1 rounded-pill shadow-sm">
+                <li class="nav-item"><a class="nav-link active rounded-pill" href="#">Semua</a></li>
+                <li class="nav-item"><a class="nav-link rounded-pill text-dark" href="#">Proses</a></li>
+                <li class="nav-item"><a class="nav-link rounded-pill text-dark" href="#">Selesai</a></li>
+            </ul>
+
+            <div class="card border-0 shadow-sm mb-3 rounded-4 overflow-hidden">
+                <div class="row g-0">
+                    <div class="col-4">
+                        <img src="https://images.unsplash.com/photo-1515162816999-a0c47dc192f7?q=80&w=400" class="img-fluid h-100 object-fit-cover">
+                    </div>
+                    <div class="col-8">
+                        <div class="card-body py-2 pe-3 ps-2">
+                            <div class="d-flex justify-content-between mb-1">
+                                <span class="badge bg-primary bg-opacity-10 text-primary rounded-pill" style="font-size: 0.6rem;">Sedang Dikerjakan</span>
+                                <small class="text-muted" style="font-size: 0.6rem;">10 Jan</small>
+                            </div>
+                            <h6 class="fw-bold mb-1" style="font-size: 0.95rem;">Jalan Berlubang</h6>
+                            <p class="small text-muted mb-2 line-clamp-1">Jl. Ahmad Yani (Depan Mega Mall)</p>
+                            <div class="progress" style="height: 5px;">
+                                <div class="progress-bar" role="progressbar" style="width: 50%"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card border-0 shadow-sm mb-3 rounded-4 overflow-hidden">
+                <div class="row g-0">
+                    <div class="col-4">
+                        <img src="https://cdn.rri.co.id/berita/Atambua/o/1710129987912-IMG-20240309-WA0005/mg6nym3vp1qhjuo.jpeg" class="img-fluid h-100 object-fit-cover">
+                    </div>
+                    <div class="col-8">
+                        <div class="card-body py-2 pe-3 ps-2">
+                            <div class="d-flex justify-content-between mb-1">
+                                <span class="badge bg-success bg-opacity-10 text-success rounded-pill" style="font-size: 0.6rem;">Selesai</span>
+                                <small class="text-muted" style="font-size: 0.6rem;">08 Jan</small>
+                            </div>
+                            <h6 class="fw-bold mb-1" style="font-size: 0.95rem;">Drainase Mampet</h6>
+                            <p class="small text-muted mb-2 line-clamp-1">Jl. Gajah Mada No 45</p>
+                            <button class="btn btn-sm btn-outline-success w-100 rounded-pill py-0" style="font-size: 0.7rem;" onclick="alert('Menampilkan foto bukti pengerjaan...')">Lihat Bukti</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="view-notif" class="spa-view">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h5 class="fw-bold mb-0">Notifikasi</h5>
+                <a href="#" class="text-decoration-none small" onclick="alert('Semua telah dibaca')">Tandai Dibaca</a>
+            </div>
+
+            <div class="notif-item unread" onclick="this.classList.remove('unread')">
+                <div class="notif-icon bg-primary bg-opacity-10 text-primary">
+                    <i class="bi bi-gear-fill"></i>
+                </div>
+                <div>
+                    <h6 class="fw-bold mb-1" style="font-size: 0.9rem;">Status Laporan Berubah</h6>
+                    <p class="text-muted small mb-1 line-clamp-2">Laporan #REQ-2026-001 Anda kini sedang dikerjakan oleh Dinas PUPR.</p>
+                    <small class="text-orange fw-bold" style="font-size: 0.7rem;">Baru Saja</small>
+                </div>
+            </div>
+
+            <div class="notif-item" onclick="alert('Detail: Terima kasih atas partisipasi Anda!')">
+                <div class="notif-icon bg-success bg-opacity-10 text-success">
+                    <i class="bi bi-check-circle-fill"></i>
+                </div>
+                <div>
+                    <h6 class="fw-bold mb-1" style="font-size: 0.9rem;">Laporan Selesai</h6>
+                    <p class="text-muted small mb-1">Laporan banjir di Gajah Mada telah ditangani. Silakan cek bukti foto.</p>
+                    <small class="text-muted" style="font-size: 0.7rem;">2 Jam Lalu</small>
+                </div>
+            </div>
+
+            <div class="notif-item">
+                <div class="notif-icon bg-info bg-opacity-10 text-info">
+                    <i class="bi bi-info-circle-fill"></i>
+                </div>
+                <div>
+                    <h6 class="fw-bold mb-1" style="font-size: 0.9rem;">Info Pemkot</h6>
+                    <p class="text-muted small mb-1">Peringatan dini cuaca ekstrem untuk wilayah Pontianak Utara sore ini.</p>
+                    <small class="text-muted" style="font-size: 0.7rem;">Kemarin</small>
+                </div>
+            </div>
+        </div>
+
+        <div id="view-profile" class="spa-view">
+            <div class="text-center mb-4 pt-2">
+                <div class="position-relative d-inline-block">
+                    <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center mx-auto mb-3 fw-bold" style="width: 90px; height: 90px; font-size: 2rem;">BS</div>
+                    <span class="position-absolute bottom-0 end-0 bg-success border border-white rounded-circle p-2 border-3"></span>
+                </div>
+                <h5 class="fw-bold mb-0">Budi Santoso</h5>
+                <p class="text-muted small mb-2">budi.santoso@email.com</p>
+                <div class="d-inline-flex align-items-center bg-white px-3 py-1 rounded-pill shadow-sm">
+                    <i class="bi bi-patch-check-fill text-primary me-2"></i>
+                    <small class="fw-bold text-dark">NIK: 61710123000****</small>
+                </div>
+            </div>
+
+            <div class="list-group shadow-sm border-0 rounded-4 overflow-hidden mb-4">
+                <button onclick="alert('Masuk ke halaman Edit Profil...')" class="list-group-item list-group-item-action border-0 py-3 d-flex align-items-center">
+                    <i class="bi bi-person-gear me-3 text-primary fs-5"></i> Edit Profil
+                    <i class="bi bi-chevron-right ms-auto text-muted small"></i>
+                </button>
+                <button onclick="alert('Masuk ke pengaturan Kata Sandi...')" class="list-group-item list-group-item-action border-0 py-3 d-flex align-items-center">
+                    <i class="bi bi-shield-lock me-3 text-primary fs-5"></i> Keamanan Akun
+                    <i class="bi bi-chevron-right ms-auto text-muted small"></i>
+                </button>
+                <button onclick="alert('Menghubungi CS POROS...')" class="list-group-item list-group-item-action border-0 py-3 d-flex align-items-center">
+                    <i class="bi bi-headset me-3 text-primary fs-5"></i> Bantuan & Layanan
+                    <i class="bi bi-chevron-right ms-auto text-muted small"></i>
+                </button>
+            </div>
+
+            <button onclick="logout()" class="btn btn-outline-danger w-100 rounded-pill py-3 fw-bold border-2">
+                <i class="bi bi-box-arrow-right me-2"></i> Keluar Aplikasi
+            </button>
+            
+            <p class="text-center text-muted small mt-4 opacity-50">Versi Aplikasi 1.0.2 (Beta)</p>
+        </div>
+
+    </div>
+
+    <div class="bottom-nav">
+        <a href="#" class="nav-item active" onclick="switchView('home'); return false;" id="nav-home">
+            <i class="bi bi-house-door-fill"></i>
+            <span>Beranda</span>
+        </a>
+        <a href="#" class="nav-item" onclick="switchView('history'); return false;" id="nav-history">
+            <i class="bi bi-clock-history"></i>
+            <span>Riwayat</span>
+        </a>
+        
+        <a href="#" onclick="switchView('lapor'); return false;" class="text-decoration-none">
+            <div class="fab-lapor">
+                <i class="bi bi-camera"></i>
+            </div>
+        </a>
+
+        <a href="#" class="nav-item" onclick="switchView('notif'); return false;" id="nav-notif">
+            <div class="position-relative">
+                <i class="bi bi-bell-fill"></i>
+                <span class="position-absolute top-0 start-100 translate-middle p-1 bg-danger border border-light rounded-circle"></span>
+            </div>
+            <span>Notif</span>
+        </a>
+        <a href="#" class="nav-item" onclick="switchView('profile'); return false;" id="nav-profile">
+            <i class="bi bi-person-fill"></i>
+            <span>Profil</span>
+        </a>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        // Simulasi GPS
+        function initGPS() {
+            setTimeout(() => {
+                const locInput = document.getElementById('locationInput');
+                const gpsStat = document.getElementById('gpsStatus');
+                if(locInput && gpsStat) {
+                    locInput.value = "Jl. Tanjung Pura, Pontianak Selatan";
+                    gpsStat.innerHTML = '<i class="bi bi-check-circle-fill"></i> GPS Terkunci (Akurasi 3m)';
+                }
+            }, 2000);
+        }
+
+        // Router Sederhana
+        function switchView(viewName) {
+            // Hide all views
+            document.querySelectorAll('.spa-view').forEach(el => el.classList.remove('active'));
+            // Show target
+            document.getElementById('view-' + viewName).classList.add('active');
+            
+            // Update Nav State
+            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+            const activeNav = document.getElementById('nav-' + viewName);
+            if(activeNav) activeNav.classList.add('active');
+
+            // Khusus halaman lapor, nyalakan simulasi GPS
+            if(viewName === 'lapor') initGPS();
+
+            window.scrollTo(0, 0);
+        }
+
+        // Preview Kamera
+        function previewFile() {
+            const preview = document.getElementById('previewImg');
+            const placeholder = document.getElementById('cameraPlaceholder');
+            const file = document.getElementById('cameraInput').files[0];
+            const reader = new FileReader();
+
+            reader.onloadend = function () {
+                preview.src = reader.result;
+                preview.style.display = 'block';
+                placeholder.style.display = 'none';
+            }
+
+            if (file) {
+                reader.readAsDataURL(file);
+            }
+        }
+
+        // Fungsi Submit
+        function submitLaporan() {
+            if(document.getElementById('cameraInput').files.length === 0) {
+                alert("Harap ambil foto bukti kejadian terlebih dahulu!");
+                return;
+            }
+            
+            const btn = document.querySelector('button[onclick="submitLaporan()"]');
+            const originalText = btn.innerHTML;
+            
+            btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span> Mengirim Data...';
+            btn.disabled = true;
+
+            setTimeout(() => {
+                alert("Laporan Berhasil Dikirim! \nID Tiket: #REQ-2026-NEW \n\nTerima kasih telah berkontribusi.");
+                switchView('history');
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+            }, 2000);
+        }
+
+        // Fungsi Logout
+        function logout() {
+            if(confirm('Apakah Anda yakin ingin keluar dari aplikasi?')) {
+                window.location.href = '../index.html';
+            }
+        }
+    </script>
+</body>
+</html>

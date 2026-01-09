@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Daftar Akun - POROS Pontianak</title>
+    
+    <link rel="icon" href="assets/logo.svg" type="image/svg+xml">
+    
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+
+    <style>
+        /* --- VARIABLE & RESET (Sama dengan Login) --- */
+        :root { 
+            --primary-color: #382467; 
+            --primary-light: #5a3c99;
+            --primary-bg-light: #f3f0fa;
+            --accent-orange: #f47920;
+            --text-dark: #2c3e50;
+            --text-muted: #6c757d;
+        }
+
+        body, html {
+            height: 100%;
+            margin: 0;
+            font-family: 'Poppins', sans-serif;
+            overflow: hidden; /* Mencegah scroll pada desktop */
+            background-color: #fff;
+        }
+
+        /* --- LAYOUT UTAMA --- */
+        .register-container {
+            height: 100vh;
+            width: 100vw;
+        }
+
+        /* --- BAGIAN KIRI (FORM) --- */
+        .left-panel {
+            background-color: #ffffff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 30px; /* Padding sedikit diperkecil agar muat konten banyak */
+            position: relative;
+            z-index: 2;
+        }
+
+        .register-wrapper {
+            width: 100%;
+            max-width: 450px; /* Sedikit lebih lebar dari login (420px) untuk form 2 kolom */
+        }
+
+        /* Branding Header */
+        .brand-header { margin-bottom: 25px; }
+        .brand-logo { height: 50px; margin-bottom: 10px; }
+        .brand-title { font-weight: 800; color: var(--primary-color); margin-bottom: 0; line-height: 1.2; }
+        .brand-subtitle { font-size: 0.7rem; color: var(--accent-orange); font-weight: 600; letter-spacing: 2px; text-transform: uppercase; }
+
+        /* --- STEP INDICATOR (Khusus Register) --- */
+        .step-indicator {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 30px;
+            position: relative;
+            padding: 0 10px;
+        }
+        
+        .step-indicator::before {
+            content: '';
+            position: absolute;
+            top: 50%; left: 20px; right: 20px;
+            height: 2px; background: #e9ecef; z-index: 0;
+            transform: translateY(-50%);
+        }
+
+        .step-dot {
+            width: 32px; height: 32px;
+            background: #fff;
+            border: 2px solid #e9ecef;
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-weight: 600; color: #ccc; z-index: 1;
+            font-size: 0.85rem; transition: 0.3s;
+        }
+
+        .step-dot.active {
+            border-color: var(--primary-color);
+            background: var(--primary-color);
+            color: white;
+            box-shadow: 0 0 0 4px var(--primary-bg-light);
+        }
+        
+        .step-dot.finished {
+            border-color: var(--accent-orange);
+            background: var(--accent-orange);
+            color: white;
+        }
+
+        /* --- FORM STYLING --- */
+        .form-section { display: none; animation: fadeIn 0.4s ease-in-out; }
+        .form-section.active { display: block; }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .form-floating > .form-control:focus ~ label,
+        .form-floating > .form-control:not(:placeholder-shown) ~ label,
+        .form-floating > .form-select:focus ~ label,
+        .form-floating > .form-select:not(:placeholder-shown) ~ label {
+            color: var(--primary-color);
+            transform: scale(.85) translateY(-0.5rem) translateX(0.15rem);
+        }
+
+        .form-control:focus, .form-select:focus {
+            border-color: var(--primary-light);
+            box-shadow: 0 0 0 0.25rem rgba(56, 36, 103, 0.15);
+        }
+
+        /* Tombol Navigasi */
+        .btn-nav-group { margin-top: 25px; display: flex; gap: 10px; }
+        
+        .btn-next {
+            background: linear-gradient(45deg, var(--primary-color), var(--primary-light));
+            color: white; font-weight: 600;
+            border-radius: 50px; padding: 10px 20px;
+            flex: 1; border: none; box-shadow: 0 4px 10px rgba(56, 36, 103, 0.2);
+            transition: 0.3s;
+        }
+        .btn-next:hover { transform: translateY(-2px); color: white; box-shadow: 0 6px 15px rgba(56, 36, 103, 0.3); }
+
+        .btn-back {
+            background: white; border: 1px solid #dee2e6;
+            color: var(--text-muted); font-weight: 500;
+            border-radius: 50px; padding: 10px 20px;
+            transition: 0.3s;
+        }
+        .btn-back:hover { background: #f8f9fa; color: var(--text-dark); border-color: #ccc; }
+
+        .link-custom { color: var(--primary-color); text-decoration: none; font-weight: 600; }
+        .link-custom:hover { color: var(--accent-orange); text-decoration: underline; }
+
+        /* --- BAGIAN KANAN (CAROUSEL) - SAMA PERSIS DENGAN LOGIN --- */
+        .right-panel {
+            position: relative;
+            padding: 0;
+            overflow: hidden;
+        }
+
+        .carousel, .carousel-inner, .carousel-item { height: 100%; }
+
+        .carousel-item img {
+            object-fit: cover;
+            height: 100vh;
+            width: 100%;
+            /* Filter brightness sama dengan login agar teks terbaca */
+            filter: brightness(0.7); 
+        }
+
+        .carousel-overlay {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(180deg, rgba(56, 36, 103, 0.3) 0%, rgba(56, 36, 103, 0.8) 100%);
+            z-index: 1;
+        }
+
+        .carousel-caption {
+            z-index: 2;
+            bottom: 80px; text-align: left;
+            left: 60px; right: 60px;
+        }
+
+        .carousel-caption h2 {
+            font-weight: 700; font-size: 2.5rem; margin-bottom: 15px;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.3);
+        }
+
+        .carousel-caption p { font-size: 1.1rem; font-weight: 300; opacity: 0.9; }
+
+        /* RESPONSIVE */
+        @media (max-width: 991px) {
+            body, html { overflow-y: auto; }
+            .register-container { height: auto; min-height: 100vh; }
+            .left-panel { padding: 40px 20px; min-height: 100vh; }
+            .right-panel { display: none; }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container-fluid register-container">
+        <div class="row h-100 g-0">
+            
+            <div class="col-lg-5 left-panel">
+                <div class="register-wrapper">
+                    
+                    <div class="brand-header text-center text-lg-start">
+                        <img src="assets/logo.svg" alt="POROS Logo" class="brand-logo">
+                        <h1 class="brand-title">POROS</h1>
+                        <span class="brand-subtitle">PONTIANAK RESPONSIF</span>
+                    </div>
+
+                    <div class="step-indicator">
+                        <div class="step-dot active" id="dot1">1</div>
+                        <div class="step-dot" id="dot2">2</div>
+                        <div class="step-dot" id="dot3">3</div>
+                    </div>
+
+                    <div class="mb-4">
+                        <h4 class="fw-bold text-dark" id="stepTitle">Buat Akun Baru</h4>
+                        <p class="text-muted small mb-0" id="stepDesc">Langkah 1: Informasi Login</p>
+                    </div>
+
+                    <form id="registerForm" action="login.html">
+                        
+                        <div class="form-section active" id="step1">
+                            <div class="form-floating mb-3">
+                                <input type="text" class="form-control" id="fullName" placeholder="Nama Lengkap" required>
+                                <label>Nama Lengkap</label>
+                            </div>
+                            <div class="form-floating mb-3">
+                                <input type="email" class="form-control" id="email" placeholder="name@example.com" required>
+                                <label>Alamat Email</label>
+                            </div>
+                            <div class="row g-2">
+                                <div class="col-6">
+                                    <div class="form-floating mb-3">
+                                        <input type="password" class="form-control" id="pass1" placeholder="Password" required>
+                                        <label>Kata Sandi</label>
+                                    </div>
+                                </div>
+                                <div class="col-6">
+                                    <div class="form-floating mb-3">
+                                        <input type="password" class="form-control" id="pass2" placeholder="Konfirmasi" required>
+                                        <label>Ulangi Sandi</label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="btn-nav-group">
+                                <button type="button" class="btn btn-next" onclick="nextStep(2)">Lanjut <i class="bi bi-arrow-right ms-2"></i></button>
+                            </div>
+                            
+                            <div class="text-center mt-4">
+                                <span class="text-muted small">Sudah punya akun?</span>
+                                <a href="login.html" class="link-custom small ms-1">Masuk Sekarang</a>
+                            </div>
+                        </div>
+
+                        <div class="form-section" id="step2">
+                            <div class="form-floating mb-3">
+                                <input type="number" class="form-control" id="nik" placeholder="NIK" required>
+                                <label>NIK (16 Digit)</label>
+                            </div>
+                            <div class="form-floating mb-3">
+                                <input type="tel" class="form-control" id="phone" placeholder="No HP" required>
+                                <label>Nomor WhatsApp</label>
+                            </div>
+                            <div class="row g-2 mb-3">
+                                <div class="col-6">
+                                    <div class="form-floating">
+                                        <input type="date" class="form-control" id="dob" required>
+                                        <label>Tanggal Lahir</label>
+                                    </div>
+                                </div>
+                                <div class="col-6">
+                                    <div class="form-floating">
+                                        <select class="form-select" id="gender">
+                                            <option value="L">Laki-laki</option>
+                                            <option value="P">Perempuan</option>
+                                        </select>
+                                        <label>Jenis Kelamin</label>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="btn-nav-group">
+                                <button type="button" class="btn btn-back" onclick="prevStep(1)">Kembali</button>
+                                <button type="button" class="btn btn-next" onclick="nextStep(3)">Lanjut <i class="bi bi-arrow-right ms-2"></i></button>
+                            </div>
+                        </div>
+
+                        <div class="form-section" id="step3">
+                            <div class="form-floating mb-3">
+                                <select class="form-select" id="kecamatan" required>
+                                    <option selected disabled value="">Pilih Kecamatan</option>
+                                    <option value="PtkBarat">Pontianak Barat</option>
+                                    <option value="PtkKota">Pontianak Kota</option>
+                                    <option value="PtkSelatan">Pontianak Selatan</option>
+                                    <option value="PtkTenggara">Pontianak Tenggara</option>
+                                    <option value="PtkTimur">Pontianak Timur</option>
+                                    <option value="PtkUtara">Pontianak Utara</option>
+                                </select>
+                                <label>Kecamatan</label>
+                            </div>
+                            
+                            <div class="form-floating mb-3">
+                                <input type="text" class="form-control" id="kelurahan" placeholder="Kelurahan" required>
+                                <label>Kelurahan</label>
+                            </div>
+
+                            <div class="form-floating mb-3">
+                                <textarea class="form-control" placeholder="Alamat" id="alamat" style="height: 80px"></textarea>
+                                <label>Alamat Lengkap</label>
+                            </div>
+                            
+                            <div class="form-check mb-4">
+                                <input class="form-check-input" type="checkbox" id="agree" required>
+                                <label class="form-check-label small text-muted" for="agree">
+                                    Saya setuju dengan <a href="#" class="link-custom">Syarat & Ketentuan</a>.
+                                </label>
+                            </div>
+
+                            <div class="btn-nav-group">
+                                <button type="button" class="btn btn-back" onclick="prevStep(2)">Kembali</button>
+                                <button type="submit" class="btn btn-next bg-orange">Daftar Akun</button>
+                            </div>
+                        </div>
+
+                    </form>
+
+                    <div class="text-center mt-4 pt-2 border-top">
+                        <a href="index.html" class="text-muted text-decoration-none small">
+                            <i class="bi bi-arrow-left me-1"></i> Kembali ke Beranda
+                        </a>
+                    </div>
+
+                </div>
+            </div>
+
+            <div class="col-lg-7 right-panel d-none d-lg-block">
+                <div id="registerCarousel" class="carousel slide carousel-fade" data-bs-ride="carousel" data-bs-interval="4000">
+                    
+                    <div class="carousel-indicators">
+                        <button type="button" data-bs-target="#registerCarousel" data-bs-slide-to="0" class="active" aria-current="true"></button>
+                        <button type="button" data-bs-target="#registerCarousel" data-bs-slide-to="1"></button>
+                        <button type="button" data-bs-target="#registerCarousel" data-bs-slide-to="2"></button>
+                    </div>
+
+                    <div class="carousel-inner">
+                        <div class="carousel-item active">
+                            <div class="carousel-overlay"></div>
+                            <img src="assets/login 1.svg" class="d-block w-100" alt="Smart City">
+                            <div class="carousel-caption">
+                                <h2>Identitas Terverifikasi</h2>
+                                <p>Sistem pendaftaran terintegrasi dengan Dukcapil untuk memastikan validitas data warga Pontianak.</p>
+                            </div>
+                        </div>
+
+                        <div class="carousel-item">
+                            <div class="carousel-overlay"></div>
+                            <img src="assets/login 2.svg" class="d-block w-100" alt="Collaboration">
+                            <div class="carousel-caption">
+                                <h2>Akses Layanan Mudah</h2>
+                                <p>Satu akun untuk semua layanan publik digital. Cepat, transparan, dan dapat diandalkan.</p>
+                            </div>
+                        </div>
+
+                        <div class="carousel-item">
+                            <div class="carousel-overlay"></div>
+                            <img src="assets/login 3.svg" class="d-block w-100" alt="Building">
+                            <div class="carousel-caption">
+                                <h2>Membangun Bersama</h2>
+                                <p>Bergabunglah dengan ribuan warga lainnya dalam mewujudkan Pontianak Smart City.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        function nextStep(step) {
+            // Animasi pergantian form
+            document.querySelectorAll('.form-section').forEach(el => el.classList.remove('active'));
+            document.getElementById('step' + step).classList.add('active');
+            updateIndicator(step);
+        }
+
+        function prevStep(step) {
+            document.querySelectorAll('.form-section').forEach(el => el.classList.remove('active'));
+            document.getElementById('step' + step).classList.add('active');
+            updateIndicator(step);
+        }
+
+        function updateIndicator(step) {
+            // Update dots
+            document.querySelectorAll('.step-dot').forEach((dot, index) => {
+                dot.classList.remove('active', 'finished');
+                if (index + 1 < step) {
+                    dot.classList.add('finished');
+                    dot.innerHTML = '<i class="bi bi-check"></i>';
+                } else if (index + 1 === step) {
+                    dot.classList.add('active');
+                    dot.innerText = step;
+                } else {
+                    dot.innerText = index + 1;
+                }
+            });
+
+            // Update Judul
+            const title = document.getElementById('stepTitle');
+            const desc = document.getElementById('stepDesc');
+
+            if(step === 1) {
+                title.innerText = "Buat Akun Baru";
+                desc.innerText = "Langkah 1: Informasi Login";
+            } else if(step === 2) {
+                title.innerText = "Data Diri";
+                desc.innerText = "Langkah 2: Biodata Resmi";
+            } else if(step === 3) {
+                title.innerText = "Lokasi Domisili";
+                desc.innerText = "Langkah 3: Alamat Tinggal";
+            }
+        }
+    </script>
+
+</body>
+</html>
